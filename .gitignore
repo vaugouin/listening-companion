@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-server/
+.env
+.env.*
+!.env.example
+.claude/
+*.log
+coverage/
+tests/*.wav
+.DS_Store
+Thumbs.db

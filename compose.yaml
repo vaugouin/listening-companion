@@ -1,0 +1,49 @@
+name: listening-companion
+
+services:
+  listening-companion:
+    user: "${RUN_UID:-1000}:${RUN_GID:-1000}"
+    build:
+      context: .
+      args:
+        BASE_PATH: /hors-champ/
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "4310"
+      BASE_PATH: /hors-champ/
+      PUBLIC_ORIGIN: https://www.vaugouin.com
+      EXTERNAL_ENV_FILE: /run/secrets/cinema.env
+      TEXT2SQL_BASE_URL: "${TEXT2SQL_BASE_URL:-http://host.docker.internal:8187}"
+    volumes:
+      - type: bind
+        source: "${EXTERNAL_ENV_FILE:?Lancer bash scripts/configure-vps.sh avant le déploiement}"
+        target: /run/secrets/cinema.env
+        read_only: true
+        bind:
+          create_host_path: false
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - reverseproxy
+    expose:
+      - "4310"
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4310/hors-champ/api/health').then(async r=>{const h=await r.json();process.exit(r.ok&&h.ok&&h.openai&&h.cinema?0:1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+networks:
+  reverseproxy:
+    external: true
+    name: reverseproxy

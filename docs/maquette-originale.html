@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Copie de travail de la maquette APP-IDEAS-001, voir app-ideas-001-listening-companion.md. Version publiée : https://claude.ai/artifact/TWUQ7Zfj4uESWsWB3br8Dn -->
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Compagnon d'écoute, maquette iPad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a fixed 1180×820 iPad-landscape stage, scaled to fit; tree panel left, live wall centre, subtitles + "brain" band at the bottom. Single dark look (screening room). */
+:root{
+  color-scheme: dark;
+  --ink:#0f1318;          /* screening-room ground */
+  --ink-2:#161c23;        /* panels */
+  --ink-3:#212a34;        /* raised */
+  --line:#2c3743;
+  --paper:#e9e4da;        /* projector light, main text */
+  --muted:#8d97a3;
+  --beam:#f2c66d;         /* accent: projector beam */
+  --spk-a:#5ec8c0;        /* speaker A */
+  --spk-b:#e9867a;        /* speaker B */
+  --f-display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+html,body{background:var(--ink);color:var(--paper)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:20px 32px}
+.page{max-width:1240px;margin:0 auto;display:grid;gap:14px}
+.head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px}
+.head h1{font-family:var(--f-display);font-weight:800;font-size:34px;letter-spacing:.02em;margin:0;text-transform:uppercase;text-wrap:balance}
+.head p{margin:0;color:var(--muted);max-width:62ch}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font:inherit;font-size:14px;color:var(--paper);background:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button:focus-visible{outline:2px solid var(--beam);outline-offset:2px}
+button.primary{background:var(--beam);color:var(--ink);border-color:var(--beam);font-weight:600}
+.beatcount{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stage-wrap{position:relative;width:100%}
+.stage{position:absolute;left:0;top:0;width:1180px;height:820px;transform-origin:0 0;background:radial-gradient(ellipse at 62% 40%,#1b232c 0%,var(--ink) 70%);border:1px solid var(--line);border-radius:22px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+/* tree panel */
+.tree{position:absolute;left:0;top:0;bottom:0;width:236px;background:color-mix(in srgb,var(--ink-2) 92%,transparent);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:12px;z-index:900;overflow-y:auto}
+.tree h2{margin:0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.pile{display:grid;gap:2px}
+.pile-title{font-family:var(--f-display);font-weight:600;font-size:19px;letter-spacing:.02em;text-transform:uppercase;line-height:1.1;margin-bottom:4px;display:flex;gap:6px;align-items:center}
+.pile-title .live{font-family:var(--f-mono);font-size:10px;color:var(--ink);background:var(--beam);border-radius:4px;padding:1px 5px;letter-spacing:0}
+.node{display:flex;align-items:center;gap:7px;font-size:13px;padding:4px 6px;border-radius:7px;cursor:pointer;color:var(--paper);background:none;border:0;text-align:left;width:100%}
+.node:hover{background:var(--ink-3)}
+.node.viewed{background:var(--ink-3);box-shadow:inset 2px 0 0 var(--beam)}
+.node .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--muted)}
+.node .lbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.node .tag{margin-left:auto;font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.tree .hint{margin-top:auto;font-size:12px;color:var(--muted);line-height:1.45}
+/* wall */
+.wall{position:absolute;inset:0}
+.card{position:absolute;left:0;top:0;width:150px;height:225px;border-radius:10px;overflow:hidden;transform-origin:50% 50%;will-change:transform,opacity;box-shadow:0 10px 24px rgba(0,0,0,.45);cursor:pointer}
+.card.back{filter:saturate(.45) brightness(.75)}
+.card.fact{outline:3px solid var(--paper);outline-offset:-3px}
+.multi .card.fact.spk-a{outline-color:var(--spk-a)}
+.multi .card.fact.spk-b{outline-color:var(--spk-b)}
+.poster{position:absolute;inset:0;padding:14px 12px;display:flex;flex-direction:column;justify-content:space-between;color:#f6f1e6}
+.poster .t{font-family:var(--f-display);font-weight:800;font-size:27px;line-height:.95;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.poster .y{font-family:var(--f-mono);font-size:12px;opacity:.85}
+.poster .d{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.person{position:absolute;inset:0;background:linear-gradient(180deg,#39424d,#1d242c);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:12px;color:#f6f1e6;text-align:center}
+.person .face{position:absolute;left:50%;top:26px;width:92px;height:92px;margin-left:-46px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#8f99a5 0 30%,transparent 31%),radial-gradient(ellipse at 50% 110%,#8f99a5 0 52%,transparent 53%),#2b333d;display:grid;place-items:center}
+.person .face b{font-family:var(--f-display);font-size:30px;color:#1d242c;margin-top:-12px}
+.person .n{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1;text-transform:uppercase}
+.person .dt{font-family:var(--f-mono);font-size:11.5px;opacity:.8;margin-top:4px}
+.mosaic{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.mosaic .m{position:relative;overflow:hidden}
+.mosaic .m .poster{padding:7px 6px}
+.mosaic .m .poster .t{font-size:14px}
+.mosaic .m .poster .y,.mosaic .m .poster .d{display:none}
+.band{position:absolute;left:0;right:0;bottom:0;background:rgba(15,19,24,.86);padding:7px 10px;font-family:var(--f-display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.02em;color:#f6f1e6;line-height:1}
+.band small{display:block;font-family:var(--f-mono);font-weight:400;font-size:10.5px;text-transform:none;letter-spacing:0;opacity:.8;margin-top:3px}
+.caption{position:absolute;left:0;right:0;bottom:0;padding:9px 10px 10px;background:linear-gradient(0deg,rgba(10,12,15,.95),rgba(10,12,15,.75));font-size:12px;line-height:1.3;color:#f6f1e6;opacity:0;transition:opacity .25s}
+.caption b{display:block;font-size:13.5px}
+.card.focused .caption{opacity:1}
+.factmark{position:absolute;top:7px;left:7px;font-family:var(--f-mono);font-size:10px;background:rgba(15,19,24,.82);color:#f6f1e6;border-radius:4px;padding:2px 5px}
+/* sibling (branch) tiles */
+.sib{position:absolute;z-index:850;display:flex;gap:10px;align-items:center;background:var(--ink-2);border:2px solid var(--line);border-radius:12px;padding:8px 12px 8px 8px;cursor:pointer;color:var(--paper);font:inherit;text-align:left;transition:left .5s,top .5s,opacity .4s}
+.multi .sib.spk-a{border-color:var(--spk-a)}
+.multi .sib.spk-b{border-color:var(--spk-b)}
+.sib .mini{width:38px;height:57px;border-radius:5px;overflow:hidden;position:relative;flex:none}
+.sib .mini .card{transform:scale(.2533);transform-origin:0 0;box-shadow:none}
+.sib small{display:block;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+/* dock of parked piles */
+.dock{position:absolute;top:14px;right:16px;display:flex;gap:10px;z-index:880}
+.parked{display:flex;gap:9px;align-items:center;background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:6px 12px 6px 6px;cursor:pointer;color:var(--paper);font:inherit;animation:pop .45s ease-out}
+.parked .mini{width:30px;height:45px;border-radius:4px;overflow:hidden;position:relative;flex:none}
+.parked .mini .card{transform:scale(.2);transform-origin:0 0;box-shadow:none}
+.parked b{font-family:var(--f-display);font-size:16px;letter-spacing:.02em;text-transform:uppercase;font-weight:600}
+.parked small{display:block;font-size:11px;color:var(--muted)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+/* countdown */
+.count{position:absolute;top:14px;left:50%;transform:translateX(-50%);margin-left:118px;z-index:890;display:flex;gap:10px;align-items:center;background:var(--ink-3);border:1px solid var(--beam);border-radius:999px;padding:6px 8px 6px 16px;font-size:13.5px}
+.count b{font-family:var(--f-mono);color:var(--beam);font-variant-numeric:tabular-nums}
+.count button{padding:4px 11px;font-size:12.5px}
+.browsing{position:absolute;top:14px;left:254px;z-index:890;display:flex;gap:10px;align-items:center;font-size:12.5px;color:var(--muted)}
+.browsing button{padding:4px 11px;font-size:12.5px}
+/* bottom band: brain + subtitles */
+.bottom{position:absolute;left:236px;right:0;bottom:0;padding:12px 26px 18px;background:linear-gradient(0deg,rgba(15,19,24,.97) 60%,rgba(15,19,24,0));z-index:870;display:grid;gap:9px;pointer-events:none}
+.brain{display:flex;flex-wrap:wrap;gap:8px;min-height:30px}
+.chip{display:flex;gap:8px;align-items:center;font-family:var(--f-mono);font-size:12px;background:var(--ink-3);border:1px solid var(--line);border-radius:7px;padding:5px 9px;animation:pop .35s ease-out}
+.chip .k{color:var(--ink);background:var(--muted);border-radius:4px;padding:0 5px;font-size:10.5px}
+.chip.new .k{background:var(--beam)}
+.chip.fork .k{background:var(--spk-b)}
+.chip.back .k{background:var(--spk-a)}
+.chip .st{color:var(--muted)}
+.chip .st.ok{color:var(--beam)}
+.spin{display:inline-block;width:10px;height:10px;border:2px solid var(--muted);border-top-color:transparent;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-1px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.sub{display:flex;gap:12px;align-items:flex-start}
+.av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:600;font-size:13px;background:var(--ink-3);border:2px solid var(--line);color:var(--paper)}
+.multi .av.spk-a{border-color:var(--spk-a);color:var(--spk-a)}
+.multi .av.spk-b{border-color:var(--spk-b);color:var(--spk-b)}
+.subtext{font-size:19px;line-height:1.42;max-width:none;min-height:54px}
+.subtext .who{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1px}
+.subtext .w{opacity:.22;transition:opacity .2s}
+.subtext .w.on{opacity:1}
+.subtext .w.hit{color:var(--beam)}
+/* notes under the stage */
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 24px;color:var(--muted);font-size:13.5px}
+.notes div{min-width:0}
+.notes b{color:var(--paper);font-weight:600}
+@media (prefers-reduced-motion: reduce){.chip,.parked{animation:none}.spin{animation:none}}
+</style>
+
+<div class="page">
+  <div class="head">
+    <h1>Hors Champ, écoute augmentée</h1>
+    <p>Maquette d'APP-IDEAS-001 au format iPad paysage. Un podcast fictif se déroule en sous-titres ; l'app en extrait des énoncés et construit l'arbre de la conversation.</p>
+  </div>
+  <div class="controls">
+    <button class="primary" id="play" type="button">▶ Écouter</button>
+    <button id="next" type="button">Phrase suivante</button>
+    <button id="reset" type="button">Recommencer</button>
+    <button id="recenter" type="button">Recentrer</button>
+    <span class="beatcount" id="beatcount">phrase 0 / 6</span>
+  </div>
+  <div class="stage-wrap" id="wrap">
+    <div class="stage" id="stage">
+      <aside class="tree" id="tree" aria-label="Forêt des conversations"></aside>
+      <div class="wall" id="wall"></div>
+      <div class="dock" id="dock"></div>
+      <div class="browsing" id="browsing" hidden><span>Vous regardez une pile passée.</span><button type="button" id="golive">Revenir au direct</button></div>
+      <div class="count" id="count" hidden>Retour au direct dans <b id="countn">5</b> s <button type="button" id="stay">Rester ici</button></div>
+      <div class="bottom">
+        <div class="brain" id="brain" aria-live="polite"></div>
+        <div class="sub"><div class="av" id="av">·</div><div class="subtext" id="subtext"><span class="who">en attente</span>Appuyez sur « Écouter » pour lancer l'épisode.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <div><b>Les couches.</b> Chaque énoncé ajoute une couche devant la précédente, qui recule et s'estompe. Au centre de chaque couche, la carte-fait : ce qui vient d'être dit.</div>
+    <div><b>La loupe.</b> Glissez pour vous déplacer, molette ou pincement pour reculer. La carte au centre grossit et montre ses informations ; la taille dit ce qu'on regarde, pas l'importance.</div>
+    <div><b>La forêt.</b> Le panneau de gauche liste piles et couches. Cliquez une couche ou une pile rangée : sans action pendant 10 s, l'app revient au direct, avec un compte à rebours dans les 5 dernières.</div>
+    <div><b>Données illustratives.</b> Affiches dessinées, ordre indicatif, aucune vraie note. Le délai de recherche est simulé à 2 s (3 à 5 s en vrai).</div>
+  </div>
+</div>
+
+<script>
+(() => {
+const W = 1180, H = 820, PANEL = 236;
+const CX = PANEL + (W - PANEL) / 2, CY = 318;
+const CARD_W = 150, BASE = 64, SPX = 72, SPY = 104, R = 470, D = 2.3;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- data (illustrative) ---------- */
+const F = {
+  qcc:["Les Quatre Cents Coups",1959,"Truffaut"], abs:["À bout de souffle",1960,"Godard"], hma:["Hiroshima mon amour",1959,"Resnais"],
+  mep:["Le Mépris",1963,"Godard"], jj:["Jules et Jim",1962,"Truffaut"], cleo:["Cléo de 5 à 7",1962,"Varda"],
+  pif:["Pierrot le fou",1965,"Godard"], vsv:["Vivre sa vie",1962,"Godard"], bap:["Bande à part",1964,"Godard"],
+  mar:["L'Année dernière à Marienbad",1961,"Resnais"], jet:["La Jetée",1962,"Marker"], tsp:["Tirez sur le pianiste",1960,"Truffaut"],
+  alp:["Alphaville",1965,"Godard"], asc:["Ascenseur pour l'échafaud",1958,"Malle"], lola:["Lola",1961,"Demy"],
+  mf:["Masculin féminin",1966,"Godard"], ufe:["Une femme est une femme",1961,"Godard"], bs:["Le Beau Serge",1958,"Chabrol"],
+  cou:["Les Cousins",1959,"Chabrol"], psd:["La Peau douce",1964,"Truffaut"], ps:["Le Petit Soldat",1963,"Godard"],
+  pna:["Paris nous appartient",1961,"Rivette"], bon:["Le Bonheur",1965,"Varda"], amt:["Les Amants",1958,"Malle"],
+  mur:["Muriel",1963,"Resnais"], sdl:["Le Signe du lion",1962,"Rohmer"], adp:["Adieu Philippine",1962,"Rozier"],
+  bf:["Les Bonnes Femmes",1960,"Chabrol"], bmo:["La Boulangère de Monceau",1963,"Rohmer"], bv:["Baisers volés",1968,"Truffaut"],
+  opp:["Oppenheimer",2023,"Nolan"], ody:["L'Odyssée",2026,"Nolan"], int:["Interstellar",2014,"Nolan"], inc:["Inception",2010,"Nolan"],
+  tdk:["The Dark Knight",2008,"Nolan"], pre:["Le Prestige",2006,"Nolan"], mem:["Memento",2000,"Nolan"], dun:["Dunkerque",2017,"Nolan"],
+  ten:["Tenet",2020,"Nolan"], bb:["Batman Begins",2005,"Nolan"], tdkr:["The Dark Knight Rises",2012,"Nolan"], ins:["Insomnia",2002,"Nolan"], fol:["Following",1998,"Nolan"]
+};
+const NV = ["qcc","abs","hma","mep","jj","cleo","pif","vsv","bap","mar","jet","tsp","alp","asc","lola","mf","ufe","bs","cou","psd","ps","pna","bon","amt","mur","sdl","adp","bf","bmo","bv"];
+const by = d => NV.filter(k => F[k][2] === d);
+const NOLAN = ["opp","ody","int","inc","tdk","pre","mem","dun","ten","bb","tdkr","ins","fol"];
+const PEOPLE = { godard:["Jean-Luc Godard","1930 – 2022","JLG"], truffaut:["François Truffaut","1932 – 1984","FT"], nolan:["Christopher Nolan","né en 1970","CN"] };
+const SPK = { a:{name:"Claire", init:"C"}, b:{name:"Malik", init:"M"} };
+
+const BEATS = [
+  {spk:"a", text:"Bonjour à toutes et à tous, et bienvenue dans Hors Champ. Aujourd'hui on remonte à la fin des années cinquante, au moment où une bande de jeunes critiques décide de passer derrière la caméra : la Nouvelle Vague.",
+   st:[{at:"Nouvelle", op:"new", triple:"film · mouvement · Nouvelle Vague", fact:{kind:"mosaic", label:"Nouvelle Vague", sub:"mouvement"}, cards:NV, title:"Nouvelle Vague"}]},
+  {spk:"a", text:"Et quand on dit Nouvelle Vague, le premier nom qui vient, c'est forcément Godard. Il tournait à une vitesse folle, presque un film par an.",
+   st:[{at:"Godard.", op:"refine", triple:"film · réalisateur · Jean-Luc Godard", fact:{kind:"person", id:"godard"}, cards:by("Godard")}]},
+  {spk:"a", text:"Moi, celui qui ne me quitte pas, c'est Pierrot le fou : Belmondo qui se peint le visage en bleu, la Méditerranée, Anna Karina.",
+   st:[{at:"Pierrot", op:"refine", triple:"film · titre · Pierrot le fou", fact:{kind:"film", id:"pif"}, cards:[]}]},
+  {spk:"b", text:"Attends, je ne suis pas d'accord. Le vrai point de départ, ce n'est pas Godard, c'est Truffaut. Les Quatre Cents Coups, Cannes 1959, c'est là que tout commence.",
+   st:[{at:"Truffaut.", op:"fork", triple:"film · réalisateur · François Truffaut", note:"contredit « Godard »", fact:{kind:"person", id:"truffaut"}, cards:by("Truffaut"), replaces:"godard"},
+       {at:"Coups,", op:"refine", triple:"film · titre · Les Quatre Cents Coups", fact:{kind:"film", id:"qcc"}, cards:[]}]},
+  {spk:"a", text:"Bon, ça n'a rien à voir, mais vous avez vu le dernier Nolan ? L'Odyssée, en IMAX, je n'en suis toujours pas revenue.",
+   st:[{at:"Nolan", op:"new", triple:"film · réalisateur · Christopher Nolan", fact:{kind:"person", id:"nolan"}, cards:NOLAN, title:"Nolan"},
+       {at:"L'Odyssée,", op:"refine", triple:"film · titre · L'Odyssée", fact:{kind:"film", id:"ody"}, cards:[]}]},
+  {spk:"b", text:"Pour revenir à la Nouvelle Vague deux secondes : chez Godard, moi je retiens surtout À bout de souffle.",
+   st:[{at:"revenir", op:"back", triple:"retour · pile · Nouvelle Vague", note:"pile retrouvée", target:"godard"},
+       {at:"souffle.", op:"refine", triple:"film · titre · À bout de souffle", fact:{kind:"film", id:"abs"}, cards:[]}]}
+];
+
+/* ---------- poster art ---------- */
+const PAL = [["#7a2e2a","#1f1416"],["#24506b","#0f1a24"],["#8a6a1f","#231a0b"],["#2f5d46","#0f1c16"],["#5b3a6e","#1a1220"],["#9a4b2c","#24130c"],["#3b4a5c","#121820"],["#6d2944","#1c0e15"]];
+const hash = s => { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function posterHTML(id){ const [t,y,d] = F[id]; const p = PAL[hash(id) % PAL.length]; const ang = 140 + hash(t) % 80;
+  return `<div class="poster" style="background:linear-gradient(${ang}deg,${p[0]},${p[1]})"><div class="t">${esc(t)}</div><div><div class="y">${y}</div><div class="d">${esc(d)}</div></div></div>`; }
+function personHTML(pid){ const [n,dt,ini] = PEOPLE[pid]; return `<div class="person"><div class="face"><b>${ini}</b></div><div class="n">${esc(n)}</div><div class="dt">${dt}</div></div>`; }
+function mosaicHTML(fact, cards){ return `<div class="mosaic">${cards.slice(0,4).map(c=>`<div class="m">${posterHTML(c)}</div>`).join("")}</div><div class="band">${esc(fact.label)}<small>${esc(fact.sub)} · ${cards.length} films</small></div>`; }
+function captionFor(item){
+  if (item.film) { const [t,y,d] = F[item.film]; return `<b>${esc(t)}</b>${y} · réal. ${esc(d)}`; }
+  if (item.person) { const [n,dt] = PEOPLE[item.person]; return `<b>${esc(n)}</b>${dt} · réalisateur`; }
+  return `<b>${esc(item.label)}</b>${esc(item.sub)} · ${item.count} films`;
+}
+
+/* ---------- model: a forest of trees ---------- */
+let piles, nodes, live, view, speakers, seq;
+function resetModel(){ piles = []; nodes = {}; live = null; view = null; speakers = new Set(); seq = 0; }
+const pileOf = n => piles.find(p => p.id === n.pile);
+function addNode(parent, st, spk, pileId){
+  const id = "n" + (++seq);
+  const n = {id, parent: parent ? parent.id : null, pile: pileId, fact: st.fact, cards: st.cards, spk, kids: []};
+  nodes[id] = n; if (parent) parent.kids.push(id);
+  return n;
+}
+const path = n => { const out = []; while (n) { out.unshift(n); n = n.parent ? nodes[n.parent] : null; } return out; };
+const factLabel = n => n.fact.kind === "mosaic" ? n.fact.label : n.fact.kind === "person" ? PEOPLE[n.fact.id][0] : F[n.fact.id][0];
+const leafOf = n => { while (n.kids.length) n = nodes[n.kids[n.kids.length - 1]]; return n; };
+
+function applyStatement(st, spk){
+  speakers.add(spk);
+  if (st.op === "new") {
+    const pile = {id: "p" + (piles.length + 1), title: st.title, root: null};
+    piles.push(pile);
+    const n = addNode(null, st, spk, pile.id); pile.root = n.id; setLive(n); return;
+  }
+  if (st.op === "back") {
+    const target = Object.values(nodes).find(n => n.fact.kind === "person" && n.fact.id === st.target);
+    if (target) setLive(target);
+    return;
+  }
+  if (st.op === "fork") {
+    let cur = live; while (cur && !(cur.fact.kind === "person" && cur.fact.id === st.replaces)) cur = cur.parent ? nodes[cur.parent] : null;
+    const parent = cur && cur.parent ? nodes[cur.parent] : live;
+    setLive(addNode(parent, st, spk, parent.pile)); return;
+  }
+  setLive(addNode(live, st, spk, live.pile));
+}
+function setLive(n){ const following = !view || view === live; live = n; if (following || !browsingActive()) view = n; }
+function browsingActive(){ return idle.active; }
+
+/* ---------- view geometry ---------- */
+const SPIRAL = (() => { const out = [[0,0]]; const dir = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
+  for (let k = 1; k <= 7; k++) { let q = -k, r = k; for (let i = 0; i < 6; i++) for (let j = 0; j < k; j++) { out.push([q,r]); q += dir[i][0]; r += dir[i][1]; } } return out; })();
+const hexPos = i => { const [q,r] = SPIRAL[i]; return [SPX * (q + r / 2), SPY * r]; };
+let pan = [0,0], zoom = 1;
+
+/* ---------- rendering with persistent, lerped elements ---------- */
+const wall = document.getElementById("wall"), stage = document.getElementById("stage");
+const els = new Map();
+function itemsFor(n){
+  const list = [];
+  const f = n.fact;
+  if (f.kind === "film") list.push({key: n.id + ":" + f.id, film: f.id, fact: true, from: f.id});
+  else if (f.kind === "person") list.push({key: n.id + ":@" + f.id, person: f.id, fact: true});
+  else list.push({key: n.id + ":#", mosaic: true, fact: true, label: f.label, sub: f.sub, count: n.cards.length});
+  n.cards.forEach(c => list.push({key: n.id + ":" + c, film: c, from: c}));
+  return list;
+}
+function ensureEl(item, node, parentNode){
+  let e = els.get(item.key);
+  if (e) return e;
+  const el = document.createElement("div");
+  el.className = "card" + (item.fact ? " fact spk-" + node.spk : "");
+  el.innerHTML = (item.film ? posterHTML(item.film) : item.person ? personHTML(item.person) : mosaicHTML(node.fact, node.cards))
+    + (item.fact ? `<span class="factmark">dit</span>` : "") + `<div class="caption">${captionFor(item)}</div>`;
+  el.addEventListener("click", ev => { if (moved) return; ev.stopPropagation(); focusItem(item.key); });
+  wall.appendChild(el);
+  e = {el, x: 0, y: 0, s: .2, o: 0, tx: 0, ty: 0, ts: .2, to: 0, z: 0, seen: true};
+  // fly-forward: start from the same film's card in the parent layer
+  const src = parentNode && item.from ? els.get(parentNode.id + ":" + item.from) : null;
+  if (src) { e.x = src.x; e.y = src.y; e.s = src.s; e.o = src.o; }
+  else e.init = true;
+  els.set(item.key, e);
+  return e;
+}
+let focusKey = null;
+function focusItem(key){ const e = els.get(key); if (!e) return;
+  if (!e.lay) { const n = nodes[key.split(":")[0]]; if (n && n !== view) browse(n); return; } pan = [pan[0] - (e.lay[0]), pan[1] - (e.lay[1])]; touch(); }
+function layout(){
+  for (const e of els.values()) e.seen = false;
+  multi();
+  if (!view) return;
+  const p = path(view);
+  const depthOf = new Map(p.map((n, i) => [n.id, p.length - 1 - i]));
+  let best = null, bestM = 0;
+  p.forEach(n => {
+    const k = depthOf.get(n.id);
+    const parent = n.parent ? nodes[n.parent] : null;
+    itemsFor(n).forEach((it, i) => {
+      const e = ensureEl(it, n, parent); e.seen = true;
+      const [hx, hy] = hexPos(i);
+      if (k === 0) {
+        const vx = hx * zoom + pan[0], vy = hy * zoom + pan[1];
+        const dist = Math.hypot(vx, vy) || 0.0001, x = dist / R;
+        let g, m;
+        if (x < 1) { g = (D + 1) * x / (D * x + 1); m = (D + 1) / Math.pow(D * x + 1, 2); }
+        else { g = 1 + (x - 1) / (D + 1); m = 1 / (D + 1); }
+        const nx = vx / dist * g * R, ny = vy / dist * g * R * .82;
+        e.lay = [hx * zoom + pan[0], hy * zoom + pan[1]];
+        e.tx = CX + nx; e.ty = CY + ny; e.ts = BASE * zoom * Math.max(m, .18) / CARD_W;
+        e.to = x > 1.55 ? 0 : x > 1.15 ? .55 : 1; e.z = 300 + Math.round(m * 60) + (it.fact ? 5 : 0);
+        e.el.classList.remove("back");
+        if (m > bestM) { bestM = m; best = it.key; }
+      } else {
+        const f = .92 * Math.pow(.8, k - 1);
+        e.tx = CX + hx * f * .62; e.ty = CY - 30 - 48 * k + hy * f * .62; e.ts = BASE * f * .62 / CARD_W * 1.4;
+        e.to = .5 * Math.pow(.62, k - 1); e.z = 200 - k * 20 + (it.fact ? 5 : 0); e.lay = null;
+        e.el.classList.add("back");
+      }
+      if (e.init) { e.x = e.tx; e.y = e.ty + 30; e.s = e.ts * .8; e.o = 0; e.init = false; }
+    });
+  });
+  focusKey = bestM > 2 ? best : null;
+  for (const [key, e] of els) { e.el.classList.toggle("focused", key === focusKey); if (!e.seen) { e.to = 0; e.ts = e.s * .96; } }
+  renderSiblings(p, depthOf);
+}
+function frame(){
+  layout();
+  const a = reduce ? 1 : .16;
+  for (const [key, e] of els) {
+    e.x += (e.tx - e.x) * a; e.y += (e.ty - e.y) * a; e.s += (e.ts - e.s) * a; e.o += (e.to - e.o) * a;
+    if (!e.seen && e.o < .02) { e.el.remove(); els.delete(key); continue; }
+    e.el.style.transform = `translate(${e.x - 75}px,${e.y - 112.5}px) scale(${e.s})`;
+    e.el.style.opacity = e.o.toFixed(3); e.el.style.zIndex = e.z;
+    e.el.style.pointerEvents = e.o > .4 ? "auto" : "none";
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- branches (siblings), tree, dock ---------- */
+const sibBox = document.createElement("div"); stage.appendChild(sibBox);
+function miniFor(n){ const f = n.fact; return `<div class="mini"><div class="card">${f.kind === "film" ? posterHTML(f.id) : f.kind === "person" ? personHTML(f.id) : mosaicHTML(f, n.cards)}</div></div>`; }
+function renderSiblings(p, depthOf){
+  const want = [];
+  p.forEach(n => { if (!n.parent) return; nodes[n.parent].kids.filter(id => id !== n.id).forEach(id => want.push([nodes[id], depthOf.get(n.id)])); });
+  const sig = want.map(([s, k]) => s.id + "@" + k).join(",") + "|" + speakers.size;
+  if (sibBox.dataset.sig === sig) return; sibBox.dataset.sig = sig; sibBox.innerHTML = "";
+  want.forEach(([s, k], i) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "sib spk-" + s.spk;
+    b.style.left = (PANEL + 26) + "px"; b.style.top = (70 + i * 84) + "px";
+    b.innerHTML = `${miniFor(s)}<span><small>branche voisine${k ? " · " + k + " couche" + (k > 1 ? "s" : "") + " plus bas" : ""}</small>${esc(factLabel(s))}</span>`;
+    b.addEventListener("click", () => browse(leafOf(s)));
+    sibBox.appendChild(b);
+  });
+}
+const treeEl = document.getElementById("tree"), dock = document.getElementById("dock");
+function renderTree(){
+  let h = `<h2>Forêt</h2>`;
+  if (!piles.length) h += `<p class="hint" style="margin:0">Les piles apparaîtront ici, une par conversation.</p>`;
+  piles.forEach(pl => {
+    const isLive = live && live.pile === pl.id;
+    h += `<div class="pile"><div class="pile-title">${esc(pl.title)}${isLive ? '<span class="live">direct</span>' : ""}</div>`;
+    const walk = (id, depth) => { const n = nodes[id];
+      h += `<button type="button" class="node${view === n ? " viewed" : ""}" data-id="${n.id}" style="padding-left:${6 + depth * 12}px"><span class="dot" style="${speakers.size > 1 ? "background:var(--spk-" + n.spk + ")" : ""}"></span><span class="lbl">${esc(factLabel(n))}</span>${n === live ? '<span class="tag">● direct</span>' : ""}</button>`;
+      n.kids.forEach(k => walk(k, depth + 1)); };
+    walk(pl.root, 0); h += `</div>`;
+  });
+  h += `<p class="hint">Chaque ligne est un énoncé entendu. Les retraits suivent l'arbre : une contradiction ouvre une branche voisine.</p>`;
+  treeEl.innerHTML = h;
+  treeEl.querySelectorAll(".node").forEach(b => b.addEventListener("click", () => browse(nodes[b.dataset.id])));
+  // dock: piles that are neither live nor viewed
+  const parked = piles.filter(pl => !(live && live.pile === pl.id) && !(view && view.pile === pl.id));
+  const sig = parked.map(p => p.id).join(",");
+  if (dock.dataset.sig !== sig) { dock.dataset.sig = sig; dock.innerHTML = "";
+    parked.forEach(pl => { const r = nodes[pl.root]; const b = document.createElement("button"); b.type = "button"; b.className = "parked";
+      b.innerHTML = `${miniFor(r)}<span><b>${esc(pl.title)}</b><small>${path(leafOf(r)).map(factLabel).slice(1).join(" · ") || "pile rangée"}</small></span>`;
+      b.addEventListener("click", () => browse(leafOf(r))); dock.appendChild(b); }); }
+  document.getElementById("browsing").hidden = !(view && live && view !== live);
+}
+function multi(){ stage.classList.toggle("multi", speakers.size > 1); }
+
+/* ---------- browsing + idle return (10 s, countdown on the last 5) ---------- */
+const idle = {active: false, t: 0, stay: false};
+const countEl = document.getElementById("count"), countN = document.getElementById("countn");
+function browse(n){ view = n; pan = [0,0]; idle.active = view !== live; idle.stay = false; idle.t = performance.now(); renderTree(); }
+function goLive(){ view = live; pan = [0,0]; idle.active = false; countEl.hidden = true; renderTree(); }
+function touch(){ if (idle.active) idle.t = performance.now(); }
+setInterval(() => {
+  if (!idle.active || idle.stay) { countEl.hidden = true; return; }
+  const left = 10 - (performance.now() - idle.t) / 1000;
+  if (left <= 0) { goLive(); return; }
+  countEl.hidden = left > 5; countN.textContent = Math.ceil(left);
+}, 200);
+document.getElementById("stay").addEventListener("click", () => { idle.stay = true; countEl.hidden = true; });
+document.getElementById("golive").addEventListener("click", goLive);
+
+/* ---------- subtitles, brain, playback ---------- */
+const subtext = document.getElementById("subtext"), av = document.getElementById("av"), brain = document.getElementById("brain");
+let beat = -1, playing = false, timers = [];
+const later = (fn, ms) => timers.push(setTimeout(fn, reduce ? Math.min(ms, 60) : ms));
+function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+const KIND = {new:"nouvelle pile", refine:"affine", fork:"branche", back:"retour"};
+function startBeat(i, fast){
+  clearTimers(); beat = i; document.getElementById("beatcount").textContent = `phrase ${i + 1} / ${BEATS.length}`;
+  const b = BEATS[i], words = b.text.split(" ");
+  av.textContent = SPK[b.spk].init; av.className = "av spk-" + b.spk; speakers.add(b.spk); multi();
+  subtext.innerHTML = `<span class="who">${SPK[b.spk].name}</span>` + words.map(w => `<span class="w">${esc(w)}</span> `).join("");
+  const spans = subtext.querySelectorAll(".w"); brain.innerHTML = "";
+  const step = fast ? 0 : 230;
+  words.forEach((w, j) => later(() => spans[j].classList.add("on"), j * step));
+  let chain = 0;
+  b.st.forEach(st => {
+    const j = Math.max(0, words.findIndex(w => w.startsWith(st.at)));
+    const tHear = j * step + 150;
+    later(() => {
+      spans[j] && spans[j].classList.add("hit");
+      const c = document.createElement("div"); c.className = "chip " + st.op;
+      c.innerHTML = `<span class="k">${KIND[st.op]}</span>${esc(st.triple)}${st.note ? ` <span class="st">(${esc(st.note)})</span>` : ""} <span class="st"><span class="spin"></span> je cherche…</span>`;
+      brain.appendChild(c);
+    }, tHear);
+    chain = Math.max(chain, tHear) + (fast ? 300 : 2000);
+    const at = chain;
+    later(() => {
+      if (st.done) return; st.done = true; applyStatement(st, b.spk); renderTree();
+      const c = brain.children[b.st.indexOf(st)];
+      if (c) { const s = c.querySelector(".st:last-child"); s.className = "st ok";
+        s.textContent = st.op === "back" ? "✓ pile rouverte" : st.cards && st.cards.length ? `✓ ${st.cards.length} films` : "✓ 1 film"; }
+    }, at);
+  });
+  const end = Math.max(words.length * step, chain) + 2600;
+  later(() => { if (playing && beat < BEATS.length - 1) startBeat(beat + 1); else if (beat >= BEATS.length - 1) setPlaying(false); }, end);
+}
+const playBtn = document.getElementById("play");
+function setPlaying(v){ playing = v; playBtn.textContent = v ? "❚❚ Pause" : (beat >= BEATS.length - 1 ? "▶ Réécouter" : "▶ Écouter"); }
+playBtn.addEventListener("click", () => {
+  if (playing) { setPlaying(false); return; }
+  if (beat >= BEATS.length - 1) reset();
+  setPlaying(true); startBeat(beat + 1);
+});
+document.getElementById("next").addEventListener("click", () => {
+  if (beat >= BEATS.length - 1) return;
+  // finish the current beat instantly, then start the next one
+  if (beat >= 0) { clearTimers(); BEATS[beat].st.forEach(st => { if (!st.done) { st.done = true; applyStatement(st, BEATS[beat].spk); } }); renderTree(); }
+  startBeat(beat + 1);
+});
+function reset(){
+  clearTimers(); setPlaying(false); resetModel(); BEATS.forEach(b => b.st.forEach(st => st.done = false)); beat = -1; pan = [0,0]; zoom = 1; idle.active = false;
+  for (const e of els.values()) e.el.remove(); els.clear(); brain.innerHTML = ""; dock.dataset.sig = ""; dock.innerHTML = "";
+  subtext.innerHTML = `<span class="who">en attente</span>Appuyez sur « Écouter » pour lancer l'épisode.`; av.textContent = "·"; av.className = "av";
+  document.getElementById("beatcount").textContent = `phrase 0 / ${BEATS.length}`; renderTree();
+}
+document.getElementById("reset").addEventListener("click", reset);
+document.getElementById("recenter").addEventListener("click", () => { pan = [0,0]; zoom = 1; touch(); });
+
+/* ---------- gestures: drag to pan, wheel / pinch to zoom ---------- */
+let scale = 1, moved = false; const pts = new Map(); let pinch0 = null;
+const toStage = ev => { const r = stage.getBoundingClientRect(); return [(ev.clientX - r.left) / scale, (ev.clientY - r.top) / scale]; };
+stage.addEventListener("pointerdown", ev => { if (ev.target.closest("button,.tree")) return; pts.set(ev.pointerId, toStage(ev)); moved = false;
+  if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = {d: Math.hypot(a[0]-b[0], a[1]-b[1]), z: zoom}; } });
+stage.addEventListener("pointermove", ev => { if (!pts.has(ev.pointerId)) return; const p = toStage(ev), q = pts.get(ev.pointerId);
+  if (pts.size === 1) { const dx = p[0] - q[0], dy = p[1] - q[1]; if (Math.abs(dx) + Math.abs(dy) > 3) moved = true; pan = [pan[0] + dx * .55, pan[1] + dy * .55]; }
+  pts.set(ev.pointerId, p);
+  if (pts.size === 2 && pinch0) { const [a, b] = [...pts.values()]; zoom = Math.min(1.5, Math.max(.55, pinch0.z * Math.hypot(a[0]-b[0], a[1]-b[1]) / pinch0.d)); moved = true; }
+  touch(); });
+const up = ev => { pts.delete(ev.pointerId); if (pts.size < 2) pinch0 = null; setTimeout(() => moved = false, 0); };
+stage.addEventListener("pointerup", up); stage.addEventListener("pointercancel", up); stage.addEventListener("pointerleave", up);
+stage.addEventListener("wheel", ev => { if (ev.target.closest(".tree")) return; ev.preventDefault(); zoom = Math.min(1.5, Math.max(.55, zoom * (ev.deltaY > 0 ? .93 : 1.07))); touch(); }, {passive: false});
+
+/* ---------- fit the iPad stage to the page ---------- */
+const wrap = document.getElementById("wrap");
+function fit(){ scale = Math.min(1, wrap.clientWidth / W); stage.style.transform = `scale(${scale})`; wrap.style.height = (H * scale) + "px"; }
+addEventListener("resize", fit); fit();
+
+resetModel(); renderTree(); requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+name: Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test the production image
+        run: docker build --tag hors-champ:test .
+      - name: Check prefixed routes without credentials
+        run: |
+          docker run -d --name hors-champ-test -p 127.0.0.1:4310:4310 hors-champ:test
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4310/hors-champ/api/health > /tmp/health.json; then break; fi
+            sleep 1
+          done
+          node -e "const h=require('/tmp/health.json');if(!h.ok||h.openai||h.cinema)process.exit(1)"
+          curl --fail --silent http://127.0.0.1:4310/hors-champ/ > /tmp/hors-champ.html
+          grep -q '/hors-champ/assets/' /tmp/hors-champ.html
+          curl --fail --silent http://127.0.0.1:4310/hors-champ/pcm-worklet.js > /dev/null
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:4310/api/health)" = 404
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:4310/hors-champ)" = 308
+      - name: Container diagnostics
+        if: failure()
+        run: docker logs hors-champ-test || true
