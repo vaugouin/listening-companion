@@ -56,6 +56,7 @@ Lire `readme.md` pour les contrats, la configuration et les limites vérifiées.
   API, upload et AudioWorklet passent par src/urls.ts. `PUBLIC_ORIGIN` est une
   origine, sans préfixe, lue aussi depuis les fichiers .env.
 - Le serveur de production est compilé par esbuild en dist-server/index.js.
+  `--format=esm` est obligatoire avec `type: module` ; le défaut CJS échoue au démarrage.
   Ne pas utiliser tsx après npm ci --omit=dev. Aucun fichier .env n'entre dans
   le contexte Docker. Les clés restent dans un fichier du VPS monté en lecture seule.
 - scripts/deploy-vps.sh attend un proxy déjà lancé, son dépôt propre et sa Basic

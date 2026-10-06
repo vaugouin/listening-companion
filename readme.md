@@ -215,3 +215,10 @@ conception sont un objectif à mesurer, pas une garantie.
 Références officielles utilisées : [transcription en direct](https://developers.openai.com/api/docs/guides/realtime-transcription),
 [sorties structurées](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses)
 et [transcription de fichiers](https://developers.openai.com/api/docs/guides/speech-to-text).
+
+Le déploiement préparé le même jour ajoute deux tests de routage, soit **18 tests**.
+La [validation Docker sur GitHub](https://github.com/vaugouin/listening-companion/actions/runs/37445236250)
+a réussi la construction de l'image et son démarrage sous `/hors-champ/`, sans clés.
+Le WebSocket préfixé a aussi été connecté à OpenAI depuis le PC. Les commandes VPS
+sont livrées pour exécution par l'opérateur ; le serveur de production n'a pas été
+modifié depuis cette session.

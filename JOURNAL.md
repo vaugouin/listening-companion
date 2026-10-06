@@ -2,9 +2,9 @@
 
 ## 2026-10-06 · Préparation VPS et dépôt public
 
-**Fait.** Philippe a choisi une adresse permanente et demandé la création d'un dépôt GitHub public. Ajout d'une image Docker avec serveur JavaScript compilé, de scripts de configuration et de déploiement, et du préfixe `/hors-champ/`. La route correspondante est préparée dans le dépôt privé reverseproxy, avec sa Basic Auth existante sur tous les chemins. Les clés restent dans un fichier du VPS monté en lecture seule.
+**Fait.** Le dépôt public `vaugouin/listening-companion` est créé et publié sur `main`. Ajout d'une image Docker avec serveur JavaScript compilé, de scripts de configuration et de déploiement, et du préfixe `/hors-champ/`. La route correspondante est publiée dans le dépôt privé reverseproxy, commit `d9a8a49`, avec sa Basic Auth existante sur tous les chemins. Les clés restent dans un fichier du VPS monté en lecture seule.
 
-**Vérifié.** Dix-huit tests passés, compilation locale et compilation préfixée réussies. Le contrôle de déploiement confirme redirection, assets, worklet, origines et WebSocket connecté à OpenAI sans audio. Les scripts Bash passent la vérification de syntaxe. La CI Docker et les vérifications de publication complètent le contrôle ; l'installation sur le VPS sera effectuée par Philippe avec les commandes livrées.
+**Vérifié.** Dix-huit tests passés, compilation locale et compilation préfixée réussies. Le contrôle de déploiement confirme redirection, assets, worklet, origines et WebSocket connecté à OpenAI sans audio. Les scripts Bash passent la vérification de syntaxe. La CI GitHub du commit `4bf811b` réussit la construction et le démarrage Docker ; 65 fichiers contrôlés avant publication, aucune clé détectée. L'installation sur le VPS sera effectuée par Philippe avec les commandes livrées.
 
 **Appris.** Le serveur esbuild doit explicitement produire du format ESM, puisque le paquet utilise `type: module`. La base Vite et le préfixe serveur doivent correspondre. Le délai du proxy vient du snippet partagé ; les pings WebSocket maintiennent les périodes de silence.
 
