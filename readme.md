@@ -31,7 +31,7 @@ Changer seulement `HOST` ne suffit pas pour cet usage.
 Sur le PC de Philippe, `.env.local`, ignoré par Git, pointe vers le fichier autorisé :
 
 ```dotenv
-EXTERNAL_ENV_FILE=C:/Users/vaugo/Code/fastapi-text2sql/eval/.env
+EXTERNAL_ENV_FILE=C:/Users/vaugo/Code/text2sql-eval/.env
 PORT=4310
 ```
 
