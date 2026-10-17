@@ -44,7 +44,7 @@ Les variables du processus ont priorité sur les fichiers.
 | Réglage facultatif | Défaut |
 | --- | --- |
 | `TEXT2SQL_BASE_URL` | URL du fichier externe et `API_PORT_GREEN`, actuellement port 8187 |
-| `OPENAI_MODEL` | `gpt-4.1-mini` |
+| `OPENAI_MODEL` | `gpt-6-luna` |
 | `TRANSCRIPTION_MODEL` | `gpt-live-transcribe` |
 | `FILE_TRANSCRIPTION_MODEL` | `gpt-4o-transcribe-diarize` |
 | `PORT` | `4310` |

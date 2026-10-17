@@ -21,7 +21,7 @@ export const config = {
   openaiKey: setting('OPENAI_API_KEY'),
   cinemaKey: setting('TEXT2SQL_API_KEY'),
   cinemaBase: setting('TEXT2SQL_BASE_URL', base.toString()).replace(/\/$/, ''),
-  model: setting('OPENAI_MODEL', 'gpt-4.1-mini'),
+  model: setting('OPENAI_MODEL', 'gpt-6-luna'),
   transcriptionModel: setting('TRANSCRIPTION_MODEL', 'gpt-live-transcribe'),
   fileTranscriptionModel: setting('FILE_TRANSCRIPTION_MODEL', 'gpt-4o-transcribe-diarize'),
 };
