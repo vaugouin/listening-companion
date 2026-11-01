@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Canary
+
+Start every reply with "Philippe,": no exceptions, including short replies and tool summaries.
+
 ## Projet
 
 Hors Champ est le compagnon visuel et muet de podcasts cinéma décrit dans
