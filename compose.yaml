@@ -15,7 +15,7 @@ services:
       BASE_PATH: /hors-champ/
       PUBLIC_ORIGIN: https://www.vaugouin.com
       EXTERNAL_ENV_FILE: /run/secrets/cinema.env
-      TEXT2SQL_BASE_URL: "${TEXT2SQL_BASE_URL:-http://host.docker.internal:8187}"
+      TEXT2SQL_BASE_URL: "${TEXT2SQL_BASE_URL:-http://host.docker.internal:8186}"
     volumes:
       - type: bind
         source: "${EXTERNAL_ENV_FILE:?Lancer bash scripts/configure-vps.sh avant le déploiement}"
